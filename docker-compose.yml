@@ -23,14 +23,14 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
-      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'  # Fixed UUID
+      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
       KAFKA_JMX_PORT: 9101
       KAFKA_JMX_HOSTNAME: localhost
     volumes:
-      - kafka_data:/var/lib/kafka/data  # Persist data
-    
+      - kafka_data:/var/lib/kafka/data
+
   schema-registry:
-    image: confluentinc/cp-schema-registry:8.1.0  # Match Kafka version
+    image: confluentinc/cp-schema-registry:8.1.0
     hostname: schema-registry
     container_name: schema-registry
     depends_on:
@@ -42,6 +42,29 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'PLAINTEXT://kafka:29092'
       SCHEMA_REGISTRY_KAFKASTORE_PROTOCOL: 'PLAINTEXT'
       SCHEMA_REGISTRY_LISTENERS: 'http://0.0.0.0:8081'
+
+  # KAFKA UI — REAL-TIME MONITORING (AKHQ)
+  akhq:
+    image: tchiotludo/akhq:latest
+    container_name: akhq
+    depends_on:
+      - kafka
+      - schema-registry
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            docker-kafka-cluster:  # Connection name (customize as you like)
+              properties:
+                bootstrap.servers: "kafka:29092"
+              schema-registry:
+                url: "http://schema-registry:8081"
+              connect:
+                - name: "connect"
+                  url: "http://connect:8083"  # Optional: remove if no Connect
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
 
 volumes:
   kafka_data:
