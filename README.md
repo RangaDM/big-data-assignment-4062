@@ -38,3 +38,12 @@ python create_topics.py
 python producer/producer.py
 python consumer/consumer.py
 python dlq_consumer.py
+```
+
+---
+
+## Web Interface
+
+For a clearer view, after successfully running the application, visit:
+
+[http://localhost:8080](http://localhost:8080)
