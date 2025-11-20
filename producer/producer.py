@@ -6,20 +6,14 @@ import json
 import time
 import random
 import uuid
+import os
 
-# Avro schema as string
-avro_schema_str = """
-{
-  "namespace": "com.example.orders",
-  "type": "record",
-  "name": "Order",
-  "fields": [
-    {"name": "orderId", "type": "string"},
-    {"name": "product", "type": "string"},
-    {"name": "price", "type": "float"}
-  ]
-}
-"""
+script_dir = os.path.dirname(os.path.realpath(__file__))
+schema_path = os.path.join(script_dir, "../schema/order.avsc")
+
+with open(schema_path, 'r') as f:
+    avro_schema_str = f.read()
+# ---------------------------------------------------
 
 def order_to_dict(order, ctx):
     return {
@@ -67,6 +61,7 @@ def delivery_report(err, msg):
 # Main loop
 if __name__ == "__main__":
     try:
+        print(f"Producer running. Using schema from: {schema_path}")
         i = 0
         while True:
             produce_order()
